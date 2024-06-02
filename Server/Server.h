@@ -5,9 +5,7 @@
 #include <ranges>
 #include <string_view>
 #include <sstream>
-#include <cassert>
 #include <string>
-#include <vector>
 #include <list>
 #include <unordered_map>
 #include <WinSock2.h>
@@ -42,7 +40,7 @@ namespace Redish
 		std::unordered_map<std::string, std::string> data;
 
 	public:
-		Server(int port, std::string ip_address, int max_connections);
+		Server(std::string ip_address, int port, int max_connections);
 		~Server();
 
 	public:
@@ -52,10 +50,16 @@ namespace Redish
 		void init();
 
 		int accept_connection(SOCKET& write_into);
+
 		void add_connection(const SOCKET& new_connection);
-		void del_connection();
+		void del_connection(SOCKET& del_Connection);
 
 		friend void client_handler(Handle_params h_params);
+
+		static void recieve_from_client(SOCKET connection, std::string& return_client_command);
+		static void send_to_client(SOCKET connection, std::string& sendable);
+
+		static void operate(Server& server, Utils::ECommands command, std::list<std::string>& recognised_words, std::string& result);
 
 		static std::string put(std::unordered_map<std::string, std::string>& data,
 			std::pair<std::string, std::string> pair);
@@ -83,4 +87,3 @@ namespace Redish
 	void client_handler(Handle_params h_params);
 
 }
-

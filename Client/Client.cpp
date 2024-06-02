@@ -1,6 +1,6 @@
 #include "Client.h"
 
-Redish::Client::Client(int port, std::string ip_address) :
+Redish::Client::Client(std::string ip_address, int port = 8888) :
 	wsa_data{ 0 },
 	client_socket(INVALID_SOCKET),
 	destination_address{ 0 },
@@ -11,7 +11,7 @@ Redish::Client::Client(int port, std::string ip_address) :
 
 Redish::Client::~Client()
 {
-	// todo
+	closesocket(client_socket);
 }
 
 void Redish::Client::connect()
@@ -23,17 +23,16 @@ void Redish::Client::connect()
 	{
 		rd_critical("Couldn`t connect to server");
 	}
-	rd_info("Connected to: {}:{}", inet_ntoa(destination_address.sin_addr), ntohs(destination_address.sin_port));
 
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)client_handler, (LPVOID)(this), NULL, NULL);
+
+	Sleep(300);
+	rd_info("Connected to: {}:{}", inet_ntoa(destination_address.sin_addr), ntohs(destination_address.sin_port));
 
 	while (true)
 	{
 		std::getline(std::cin, message);
-		int message_size = message.size();
-
-		send(client_socket, (const char*)&message_size, sizeof(int), NULL);
-		send(client_socket, message.c_str(), message_size, NULL);
+		send_to_server(message);
 	}
 }
 
@@ -60,23 +59,35 @@ void Redish::Client::init()
 	rd_info("Success\n");
 }
 
+void Redish::Client::recieve_from_server()
+{
+	int recieved_message_size;
+	char* recieved_message;
+
+	recv(client_socket, (char*)&recieved_message_size, sizeof(int), NULL);
+
+	recieved_message = new char[recieved_message_size + 1];
+	recieved_message[recieved_message_size] = '\0';
+
+	recv(client_socket, recieved_message, recieved_message_size, NULL);
+
+	rd_debug("{}", recieved_message);
+
+	delete[] recieved_message;
+}
+
+void Redish::Client::send_to_server(std::string& sendable)
+{
+	int sendable_size = sendable.size();
+	send(client_socket, (const char*)&sendable_size, sizeof(int), NULL);
+	send(client_socket, sendable.c_str(), sendable_size, NULL);
+}
+
 void Redish::client_handler(Client& client)
 {
 	int recieved_message_size;
 	while (true)
 	{
-		//recv(client_socket, const_cast<char*>(recieved_message.c_str()), rm_size, 0);
-		recv(client.client_socket, (char*)&recieved_message_size, sizeof(int), NULL);
-
-		char* recieved_message = new char[recieved_message_size + 1];
-		recieved_message[recieved_message_size] = '\0';
-
-		recv(client.client_socket, recieved_message, recieved_message_size, NULL);
-
-		//printf("%s\n", recieved_message);
-		rd_debug("{}", recieved_message);
-		//std::cout << ">>" << recieved_message << std::endl;
-
-		delete[] recieved_message;
+		client.recieve_from_server();
 	}
 }

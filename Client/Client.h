@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include <cassert>
 #include <WinSock2.h>
 
 #include "ClientLog.h"
@@ -29,7 +28,7 @@ namespace Redish
 		friend class Server;
 
 	public:
-		Client(int port, std::string ip_address);
+		Client(std::string ip_address, int port);
 		~Client();
 
 	public:
@@ -37,6 +36,10 @@ namespace Redish
 
 	private:
 		void init();
+
+		void recieve_from_server();
+		void send_to_server(std::string& sendable);
+
 		friend void client_handler(Client& client);
 	};
 
