@@ -37,11 +37,12 @@ void Redish::Server::start()
 			add_connection(new_connection);
 
 			Handle_params handle_params(new_connection, *this);
-			
+
 			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)client_handler, (LPVOID)(&handle_params), NULL, NULL);
 		}
 	}
 }
+
 
 void Redish::Server::init()
 {
@@ -50,25 +51,33 @@ void Redish::Server::init()
 	socket_address.sin_addr.s_addr = inet_addr(ip_address.c_str());
 
 	rd_debug("WSA init");
-	assert(!WSAStartup(MAKEWORD(2, 2), &wsa_data) && "Couldn`t init wsa");
+	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
+	{
+		rd_critical("Couldn`t init wsa");
+	}
 	rd_info("WSA success\n");
 
 	rd_debug("Creating Server Socket");
-	assert(!((listen_socket = socket(AF_INET, SOCK_STREAM, NULL)) == SOCKET_ERROR) && "Couldn`t create socket");
-	rd_info("Success\n");
+	if ((listen_socket = socket(AF_INET, SOCK_STREAM, NULL)) == SOCKET_ERROR)
+	{
+		rd_critical("Couldn`t create socket");
+	}
+	rd_info("Server Socket was succesfully created\n");
 
-	rd_debug("binding socket");
-	assert(!(bind(listen_socket, (SOCKADDR*)&socket_address, socket_address_length)) && "Couldn`t bind socket");
-	rd_info("socket binded\n");
+	rd_debug("Binding socket");
+	if (bind(listen_socket, (SOCKADDR*)&socket_address, socket_address_length))
+	{
+		rd_critical("Couldn`t bind socket");
+	}
+	rd_info("Bocket binded\n");
 
 	rd_info("Server started at: {}:{}\n", inet_ntoa(socket_address.sin_addr), ntohs(socket_address.sin_port));
 }
 
 void Redish::Server::add_connection(const SOCKET& newConnection)
 {
-	// добавить вывод в лог
-	if (connections.size() >= max_connections) {}
 	connections.push_back(newConnection);
+	rd_debug("new socket was added to connections");
 }
 
 void Redish::Server::del_connection()
@@ -79,9 +88,10 @@ void Redish::Server::del_connection()
 int Redish::Server::accept_connection(SOCKET& write_into)
 {
 	write_into = accept(listen_socket, (SOCKADDR*)&socket_address, &socket_address_length);
-	
+
 	if (write_into == INVALID_SOCKET)
 	{
+		rd_critical("{}", WSAGetLastError());
 		rd_warn("failed connection attempt");
 		return 0;
 	}
@@ -115,7 +125,7 @@ void Redish::client_handler(Redish::Handle_params h_params)
 		std::list<std::string> recognised_words;
 		Utils::recognise_words(client_command, recognised_words);
 
-		if (recognised_words.size() < 1 || recognised_words.size() > 3)
+		if (recognised_words.size() < 1)
 		{
 			rd_warn("incorrect request entered");
 			continue;

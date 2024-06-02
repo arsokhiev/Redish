@@ -19,7 +19,10 @@ void Redish::Client::connect()
 	init();
 
 	rd_debug("Try connect to server");
-	assert(!(::connect(client_socket, (sockaddr*)&destination_address, destination_address_length)) && "Couldn`t connect to server");
+	if (::connect(client_socket, (sockaddr*)&destination_address, destination_address_length) != 0)
+	{
+		rd_critical("Couldn`t connect to server");
+	}
 	rd_info("Connected to: {}:{}", inet_ntoa(destination_address.sin_addr), ntohs(destination_address.sin_port));
 
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)client_handler, (LPVOID)(this), NULL, NULL);
@@ -41,11 +44,19 @@ void Redish::Client::init()
 	destination_address.sin_addr.S_un.S_addr = inet_addr(ip_address.c_str());
 
 	rd_debug("WSA init");
-	assert(!WSAStartup(MAKEWORD(2, 2), &wsa_data) && "Couldn`t init wsa");
+	if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
+	{
+		rd_critical("Couldn`t init wsa");
+		exit(WSAGetLastError());
+	}
 	rd_info("WSA success\n");
 
 	rd_debug("Creating Client Socket");
-	assert(!((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR) && "Couldn`t create socket");
+	if ((client_socket = socket(AF_INET, SOCK_STREAM, NULL)) == SOCKET_ERROR)
+	{
+		rd_critical("Couldn`t create socket");
+		exit(WSAGetLastError());
+	}
 	rd_info("Success\n");
 }
 

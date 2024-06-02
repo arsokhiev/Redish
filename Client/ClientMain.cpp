@@ -5,7 +5,7 @@ int main(int argc, char** argv)
 	Redish::Log::init();
 	rd_info("Client Logger has been initialized\n");
 
-	// проверка на кол-во аргументов
+	// РїСЂРѕРІРµСЂРєР° РЅР° РєРѕР»-РІРѕ Р°СЂРіСѓРјРµРЅС‚РѕРІ
 
 	// change to enter from user
 	//Redish::Server server(atoi(argv[1]), "127.0.0.1");

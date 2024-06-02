@@ -12,7 +12,7 @@ bool Utils::check_command_argc(std::list<std::string>& recognised_words, int cou
 {
 	if (recognised_words.size() != count)
 	{
-		rd_warn("the number of arguments is incorrect");
+		rd_warn("incorrect use of command: number of arguments is incorrect");
 		return 0;
 	}
 	return 1;

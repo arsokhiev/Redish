@@ -11,8 +11,6 @@
 #define _WINSOCK_DEPRICATED_NO_WARNINGS
 #pragma warning(disable: 4996)
 
-//#define SIZE 1024;
-
 namespace Redish
 {
 
