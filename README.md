@@ -1,5 +1,6 @@
 # Redish
-An analogue of Redis written using the Winsock API
+An analogue of Redis written using the Winsock API 
+<br/>The application's task is to implement a simple key-value store, interacting via a tcp connection.
 
 ![alt text](https://github.com/arsokhiev/Redish/blob/master/Redish.jpg)
 
@@ -34,7 +35,8 @@ cmake --build . --config Release
 ```
 Or use the batch file "compile_win" :-)
 
-## Usage
+## Run it!
+### Server
 Again we need to change the directory, but this time to the executable file
 ```
 cd../../Server/build/Release
@@ -46,9 +48,43 @@ To start the server, run the program passing 2 arguments (ip address is default 
 RedishServer 8080 5
 ```
 Congratulations! Server is running
-##
+### Client
 By going to the same client folder you will see RedishClient.
-Run it by passing the port number
+<br/>Run it by passing the port number
 ```
 RedishClient 8080
+```
+Congratulations! Client connected to server
+
+## Usage
+Supported commands:<br/>
+<br/>PUT <key> <value> - remembers the value for the key
+<br/>GET <key> - gets the value for key
+<br/>DEL <key> - deletes the value by key
+<br/>COUNT - number of keys
+##
+Example script:
+```
+PUT name Vasya
+OK
+PUT name Masha
+OK Vasya // returns the previous value
+GET name
+OK Masha // current Masha value
+GET age
+NE // no key
+PUT age 20
+OK
+GET age
+OK 20
+COUNT
+OK 2 // 2 keys
+DEL age
+OK 20
+DEL name
+OK Masha
+COUNT
+OK 0 // no keys
+DEL name
+NE // error, no key
 ```
