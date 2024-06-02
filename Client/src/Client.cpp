@@ -27,7 +27,7 @@ void Redish::Client::connect()
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)client_handler, (LPVOID)(this), NULL, NULL);
 
 	Sleep(300);
-	rd_info("Connected to: {}:{}", inet_ntoa(destination_address.sin_addr), ntohs(destination_address.sin_port));
+	rd_info("Connected to: {}:{}\n", inet_ntoa(destination_address.sin_addr), ntohs(destination_address.sin_port));
 
 	while (true)
 	{

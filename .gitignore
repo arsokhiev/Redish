@@ -35,6 +35,7 @@
 .idea/
 .vs/
 X64/
+build/
 
 # VS files
 *.vcxproj

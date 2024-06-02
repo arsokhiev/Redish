@@ -106,7 +106,7 @@ int Redish::Server::accept_connection(SOCKET& write_into)
 	else
 	{
 		rd_debug("new client connected");
-		std::string accept_message = "Accepted by the server\n";
+		std::string accept_message = "Accepted by the server";
 		int message_size = accept_message.size();
 
 		send(write_into, (char*)&message_size, sizeof(int), NULL);
